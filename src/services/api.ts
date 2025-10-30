@@ -2,10 +2,12 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import {
   CommentResponse,
+  CreateSnippet,
   Envelope,
   MyComment,
+  QueryArgs,
+  Question,
   Snippet,
-  SnippetsQueryArgs,
   UiUser,
   UserRequest,
   UserStatistics,
@@ -58,7 +60,7 @@ export const api = createApi({
       providesTags: ['Comments'],
     }),
 
-    snippets: build.query<Snippet[], SnippetsQueryArgs>({
+    snippets: build.query<Snippet[], QueryArgs>({
       query: (args) => {
         const params = new URLSearchParams();
         if (args?.userId != null) params.set('userId', String(args.userId));
@@ -126,13 +128,28 @@ export const api = createApi({
         method: 'POST',
         body: { mark },
       }),
-      // invalidatesTags: (_result, _err, arg) => [{ type: 'Snippet', id: arg.id }],
       invalidatesTags: (_result, _err, arg) => ['Statistics'],
     }),
 
     leaveComment: build.mutation<CommentResponse, MyComment>({
       query: (body) => ({ url: '/api/comments', method: 'POST', body }),
       invalidatesTags: (_result, _err, arg) => ['Comments'],
+    }),
+
+    createSnippet: build.mutation<Snippet, CreateSnippet>({
+      query: (body) => ({ url: '/api/snippets', method: 'POST', body }),
+    }),
+
+    questions: build.query<Envelope<Envelope<Question[]>>, QueryArgs>({
+      query: ({ page = 1, limit = 15, sortBy, search, searchBy } = {}) => {
+        const params = new URLSearchParams();
+        params.set('page', String(page));
+        params.set('limit', String(limit));
+        sortBy?.forEach((s) => params.append('sortBy', s));
+        if (search) params.set('search', search);
+        searchBy?.forEach((f) => params.append('searchBy', f));
+        return { url: `api/questions?${params.toString()}` };
+      },
     }),
   }),
 });
@@ -146,4 +163,6 @@ export const {
   useUserStatisticsQuery,
   useSnippetByIdQuery,
   useLeaveCommentMutation,
+  useCreateSnippetMutation,
+  useQuestionsQuery,
 } = api;
