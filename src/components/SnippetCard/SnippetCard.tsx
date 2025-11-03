@@ -12,7 +12,15 @@ import {
   Typography,
 } from '@mui/material';
 
-import { SnippetCardProps } from '../../types/Types';
+import { Snippet } from '../../types/Types';
+
+export interface SnippetCardProps {
+  snippet: Omit<Snippet, 'marks'>;
+  onLike?: (id: number) => void;
+  onDislike?: (id: number) => void;
+  onComment?: (id: number) => void;
+  onClick?: () => void;
+}
 
 export default function SnippetCard({
   snippet,
@@ -21,7 +29,7 @@ export default function SnippetCard({
   onComment,
   onClick,
 }: SnippetCardProps) {
-  const { id, language, code, user, likes, dislikes } = snippet;
+  const { id, language, code, user, likesCount, dislikesCount } = snippet;
   const initial = user?.username?.[0]?.toUpperCase() ?? '?';
 
   return (
@@ -50,13 +58,13 @@ export default function SnippetCard({
 
       <CardActions disableSpacing>
         <IconButton aria-label="like" onClick={() => onLike?.(id)}>
-          <Badge badgeContent={likes ?? 0} color="error">
+          <Badge badgeContent={likesCount ?? 0} color="error">
             <FavoriteIcon />
           </Badge>
         </IconButton>
 
         <IconButton aria-label="dislike" onClick={() => onDislike?.(id)}>
-          <Badge badgeContent={dislikes ?? 0} color="primary">
+          <Badge badgeContent={dislikesCount ?? 0} color="primary">
             <ThumbDownAltIcon />
           </Badge>
         </IconButton>

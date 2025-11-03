@@ -14,7 +14,7 @@ export default function HomePage() {
           gap: '10px',
         }}
       >
-        <Typography variant="h1" color="primary">
+        <Typography variant="h1" color="primary" sx={{ my: 3, textAlign: 'center' }}>
           Welcome to Codelang!
         </Typography>
         <SnippetList></SnippetList>

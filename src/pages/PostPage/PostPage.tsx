@@ -33,6 +33,7 @@ export default function PostPage() {
     data: snippet,
     isLoading,
     isError,
+    refetch,
   } = useSnippetByIdQuery({
     id: Number(id),
   });
@@ -46,18 +47,26 @@ export default function PostPage() {
     language: snippet.data.language,
     code: snippet.data.code,
     user: snippet.data.user,
-    // likes: snippet.data.marks.likes,
-    // dislikes: snippet.data.marks.dislikes,
+    likesCount: snippet.data.likesCount,
+    dislikesCount: snippet.data.dislikesCount,
   };
 
+  console.log('postpage snippet.data.dislikesCount', snippet.data.dislikesCount);
+
+  console.log('postpage snippet.data.data.comments', snippet.data.comments);
+
+  if (snippet.data.comments == undefined) return;
+
   const handleLike = async (id: number) => {
-    await markSnippet({ id, mark: 'like' }).unwrap();
+    await markSnippet({ id, mark: 'like' });
     dispatch(api.util.invalidateTags(['Snippet']));
+    refetch();
   };
 
   const handleDislike = async (id: number) => {
-    await markSnippet({ id, mark: 'dislike' }).unwrap();
+    await markSnippet({ id, mark: 'dislike' });
     dispatch(api.util.invalidateTags(['Snippet']));
+    refetch();
   };
 
   const handleComment = async (e: React.FormEvent) => {
@@ -75,6 +84,7 @@ export default function PostPage() {
     setComment('');
     dispatch(api.util.invalidateTags(['Comments']));
   };
+
   return (
     <>
       <Container
@@ -97,12 +107,8 @@ export default function PostPage() {
           <Box sx={{ p: 3 }}>
             <SnippetCard
               snippet={snippetForCard}
-              onLike={() => {
-                handleLike(Number(id));
-              }}
-              onDislike={() => {
-                handleDislike(Number(id));
-              }}
+              onLike={() => handleLike(snippetForCard.id)}
+              onDislike={() => handleDislike(snippetForCard.id)}
             />
           </Box>
 

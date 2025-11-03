@@ -1,7 +1,11 @@
 import { Box, CardContent, Typography } from '@mui/material';
 
 import Comment from '../../components/Comment/Comment';
-import { CommentListProps } from '../../types/Types';
+import { CommentResponse, Envelope } from '../../types/Types';
+
+export interface CommentListProps {
+  comments: Envelope<CommentResponse[]>;
+}
 
 export default function CommentsList({ comments }: CommentListProps) {
   const safeComments = Array.isArray(comments) ? comments : [];

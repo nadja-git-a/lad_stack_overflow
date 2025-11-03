@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { logout } from '../../app/slices/authSlice';
 import { RootState } from '../../app/store';
+import AccountForm from '../../components/AccountForm/AccountForm';
 import { useUserStatisticsQuery } from '../../services/api';
 
 export default function AccountPage() {
@@ -55,6 +56,7 @@ export default function AccountPage() {
             <Box sx={{ flexGrow: 1 }}>
               <Typography
                 variant="h4"
+                color="primary"
                 sx={{
                   fontWeight: 600,
                   lineHeight: 1.2,
@@ -62,7 +64,7 @@ export default function AccountPage() {
               >
                 Welcome, {username}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              <Typography variant="body2" sx={{ mt: 0.5 }}>
                 role: {role}
               </Typography>
             </Box>
@@ -156,6 +158,7 @@ export default function AccountPage() {
           <>
             <Typography
               variant="h5"
+              color="primary"
               sx={{
                 fontWeight: 600,
                 mb: 2,
@@ -266,6 +269,8 @@ export default function AccountPage() {
             </Stack>
           </>
         )}
+
+        <AccountForm></AccountForm>
       </Box>
     </>
   );
