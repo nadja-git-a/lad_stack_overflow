@@ -1,23 +1,38 @@
-// 1. DTO на логин/регу
+// логин/рег
 export interface UserRequest {
   username: string;
   password: string;
 }
 
-// 2. Универсальный ответ API
+// обертка
 export interface Envelope<T> {
   data: T;
-  message?: string;
+  meta?: {
+    itemsPerPage: number;
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    sortBy: [string, 'ASC' | 'DESC'][];
+    searchBy: string[];
+    search: string | null;
+    select: string[];
+    filter: Record<string, unknown>;
+  };
+  links?: {
+    current: number;
+    next: number;
+    last: number;
+  };
 }
 
-// 3. Пользователь
+//  пользователь
 export interface UiUser {
   id: number;
   username: string;
-  role: 'user' | 'admin';
+  role: Role;
 }
 
-// 4. Базовая статистика пользователя
+// статистика пользователя
 export interface UserStatisticData {
   snippetsCount: number;
   rating: number;
@@ -29,50 +44,77 @@ export interface UserStatisticData {
   regularAnswersCount: number;
 }
 
-// 5. Пользователь + статистика
+// пльзователь + статистика
 export interface UserStatistics extends UiUser {
   statistic: UserStatisticData;
 }
 
-// 6. Сниппет (универсальный тип вместо UiSnippet и Snippet)
-export interface Snippet {
-  id: number;
+type Role = 'user' | 'admin';
+export type MarkType = 'like' | 'dislike';
+
+export interface Mark {
+  id: string;
+  type: MarkType;
+  user: { id: string; username: string; role: 'user' | 'admin' };
+}
+
+export interface CreateSnippet {
   language: string;
   code: string;
+}
+
+// 6. Сниппет
+export interface SnippetApi extends CreateSnippet {
+  id: number;
   user: UiUser;
-  likes?: number;
-  dislikes?: number;
-  comments?: number; // делаем опциональным, чтобы тип покрывал оба твоих кейса
+  commentsCount?: number;
+  marks: Mark[];
+  comments?: CommentResponse[];
 }
 
-// 7. Пропсы карточки сниппета
-export interface SnippetCardProps {
-  snippet: Snippet;
-  onLike?: (id: number) => void;
-  onDislike?: (id: number) => void;
-  onComment?: (id: number) => void;
-  onClick?: () => void;
+export interface Snippet extends SnippetApi {
+  likesCount: number;
+  dislikesCount: number;
 }
 
-// 8. Комменты
+// комменты
 export interface CommentResponse {
-  id: string | number;
-  content: string;
-  user: UiUser;
+  data: { id: string | number; content: string; user: UiUser };
 }
 export interface MyComment {
   content: string;
   snippetId: number;
 }
 
-export interface CommentListProps {
-  comments: Envelope<CommentResponse[]>;
-}
-
-// 9. Параметры запроса списка сниппетов
-export interface SnippetsQueryArgs {
+export interface QueryArgs {
   userId?: number;
   page?: number;
   limit?: number;
   sortBy?: string[];
+  search?: string;
+  searchBy?: string[];
+}
+
+export interface Question {
+  id: number;
+  title: string;
+  description: string;
+  attachedCode: string | null;
+  user: UiUser;
+  answers: Answer[];
+  isResolved: boolean;
+}
+
+export interface Answer {
+  id: string;
+  content: string;
+  isCorrect: Boolean;
+}
+
+export interface UpdateMeRequest {
+  username: string;
+}
+
+export interface UpdateMeResponse {
+  updatedCount: number;
 }

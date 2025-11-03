@@ -4,11 +4,16 @@ import {
   CommentResponse,
   CreateSnippet,
   Envelope,
+  Mark,
+  MarkType,
   MyComment,
   QueryArgs,
   Question,
   Snippet,
+  SnippetApi,
   UiUser,
+  UpdateMeRequest,
+  UpdateMeResponse,
   UserRequest,
   UserStatistics,
 } from '../types/Types';
@@ -23,7 +28,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Snippet', 'Statistics', 'Comments'],
+  tagTypes: ['Snippet', 'Statistics', 'Comments', 'User'],
   endpoints: (build) => ({
     logIn: build.mutation<Envelope<UiUser> | Envelope<UiUser>[], UserRequest>({
       query: (body) => ({ url: 'api/auth/login', method: 'POST', body }),
@@ -35,6 +40,16 @@ export const api = createApi({
 
     auth: build.query<UiUser, void>({
       query: () => ({ url: 'api/auth', method: 'GET' }),
+      providesTags: ['User'],
+    }),
+
+    updateMe: build.mutation<UpdateMeResponse, UpdateMeRequest>({
+      query: (body) => ({
+        url: 'api/me',
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['User'],
     }),
 
     userStatistics: build.query<Envelope<UserStatistics>, { id: number }>({
@@ -51,75 +66,72 @@ export const api = createApi({
     }),
 
     snippetById: build.query<Envelope<Snippet>, { id: number }>({
-      query: ({ id }) => {
-        return {
-          url: `api/snippets/${id}`,
-          method: 'GET',
-        };
+      query: ({ id }) => ({
+        url: `api/snippets/${id}`,
+        method: 'GET',
+      }),
+
+      transformResponse: (resp: Envelope<SnippetApi>): Envelope<Snippet> => {
+        const s = resp.data;
+
+        const count = (xs: Mark[] | undefined, t: MarkType) =>
+          Array.isArray(xs) ? xs.filter((m) => m.type === t).length : 0;
+
+        const likes = count(s.marks, 'like');
+        const dislikes = count(s.marks, 'dislike');
+
+        return { data: { ...s, likesCount: likes, dislikesCount: dislikes } };
       },
-      providesTags: ['Comments'],
+
+      providesTags: (result, error, { id }) => [{ type: 'Comments' as const, id }],
     }),
 
-    snippets: build.query<Snippet[], QueryArgs>({
+    snippets: build.query<Envelope<Snippet[]>, QueryArgs>({
       query: (args) => {
-        const params = new URLSearchParams();
-        if (args?.userId != null) params.set('userId', String(args.userId));
-        if (args?.page != null) params.set('page', String(args.page));
-        if (args?.limit != null) params.set('limit', String(args.limit));
-        args?.sortBy?.forEach((s) => params.append('sortBy', s));
-        const qs = params.toString();
-
-        return { url: `api/snippets${qs ? `?${qs}` : ''}`, method: 'GET' };
+        const p = new URLSearchParams();
+        if (args?.userId != null) p.set('userId', String(args.userId));
+        if (args?.page != null) p.set('page', String(args.page));
+        if (args?.limit != null) p.set('limit', String(args.limit));
+        args?.sortBy?.forEach((s) => p.append('sortBy', s));
+        return { url: `api/snippets${p.toString() ? `?${p}` : ''}`, method: 'GET' };
       },
 
-      providesTags: (result, error, { page, limit }) => {
-        return [{ type: 'Snippet', page, limit }];
-      },
+      transformResponse: (raw: { data: Envelope<Snippet[]> }): Envelope<Snippet[]> => {
+        const env = raw.data;
+        // console.log({ raw });
+        const arr = Array.isArray(raw?.data?.data) ? raw.data.data : [];
 
-      transformResponse: (raw: unknown): Snippet[] => {
-        const arr: any[] = Array.isArray(raw as any)
-          ? (raw as any)
-          : Array.isArray((raw as any)?.data)
-            ? (raw as any).data
-            : Array.isArray((raw as any)?.data?.data)
-              ? (raw as any).data.data
-              : [];
+        const toNum = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+        const count = (xs: any[] | undefined, t: string) =>
+          Array.isArray(xs) ? xs.filter((m) => m?.type === t).length : 0;
 
-        const toNum = (v: unknown) => {
-          const n = Number(v);
-          return Number.isFinite(n) ? n : 0;
-        };
-
-        return arr.map((s: any): Snippet => {
-          const likes = Array.isArray(s?.marks)
-            ? s.marks.filter((m: any) => m?.type === 'like').length
-            : 0;
-          const dislikes = Array.isArray(s?.marks)
-            ? s.marks.filter((m: any) => m?.type === 'dislike').length
-            : 0;
-          const comments = Array.isArray(s?.marks)
-            ? s.marks.filter((m: any) => m?.type === 'comment').length
-            : 0;
-
-          const user: UiUser = s?.user
+        const parsed: Snippet[] = arr.map((s) => ({
+          id: toNum(s?.id),
+          language: String(s?.language ?? 'Unknown'),
+          code: String(s?.code ?? ''),
+          user: s?.user
             ? {
                 id: toNum(s.user.id),
                 username: String(s.user.username ?? 'unknown'),
-                role: (s.user.role === 'admin' ? 'admin' : 'user') as UiUser['role'],
+                role: s.user.role === 'admin' ? 'admin' : 'user',
               }
-            : { id: 0, username: 'unknown', role: 'user' };
+            : { id: 0, username: 'unknown', role: 'user' },
+          likesCount: count(s?.marks, 'like'),
+          dislikesCount: count(s?.marks, 'dislike'),
+          commentsCount: count(s?.marks, 'comment'),
+          marks: s.marks,
+        }));
 
-          return {
-            id: toNum(s?.id),
-            language: String(s?.language ?? 'Unknown'),
-            code: String(s?.code ?? ''),
-            user,
-            likes,
-            dislikes,
-            comments,
-          };
-        });
+        return { data: parsed, meta: env.meta, links: env.links };
       },
+
+      providesTags: (res) =>
+        res
+          ? [
+              ...res.data.map(({ id }) => ({ type: 'Snippet' as const, id })),
+              { type: 'Snippet' as const, id: 'LIST' },
+            ]
+          : [{ type: 'Snippet' as const, id: 'LIST' }],
     }),
 
     markSnippet: build.mutation<any, { id: number; mark: 'like' | 'dislike' | 'none' }>({
@@ -151,6 +163,20 @@ export const api = createApi({
         return { url: `api/questions?${params.toString()}` };
       },
     }),
+
+    users: build.query<Envelope<Envelope<UiUser[]>>, QueryArgs>({
+      query: ({ page = 1, limit = 15, sortBy, search, searchBy } = {}) => {
+        const params = new URLSearchParams();
+        params.set('page', String(page));
+        params.set('limit', String(limit));
+
+        sortBy?.forEach((s) => params.append('sortBy', s));
+        if (search) params.set('search', search);
+        searchBy?.forEach((f) => params.append('searchBy', f));
+
+        return { url: `/api/users?${params.toString()}` };
+      },
+    }),
   }),
 });
 
@@ -165,4 +191,6 @@ export const {
   useLeaveCommentMutation,
   useCreateSnippetMutation,
   useQuestionsQuery,
+  useUsersQuery,
+  useUpdateMeMutation,
 } = api;
