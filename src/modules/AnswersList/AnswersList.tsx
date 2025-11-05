@@ -24,6 +24,7 @@ export default function AnswersList({ questionId, answers }: AnswersProps) {
     });
     setAnswer('');
   };
+
   return (
     <Stack>
       {answers && answers.length > 0 ? (
@@ -31,7 +32,7 @@ export default function AnswersList({ questionId, answers }: AnswersProps) {
       ) : (
         <Typography>No Answers yet</Typography>
       )}
-      {isAuth ?? (
+      {isAuth && (
         <>
           <Typography variant="h6" color="primary">
             Leave an answer
