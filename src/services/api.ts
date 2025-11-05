@@ -1,19 +1,24 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import {
+  Answer,
+  AskQuestion,
   CommentResponse,
   CreateSnippet,
   Envelope,
   Mark,
   MarkType,
   MyComment,
+  NewAnswer,
   QueryArgs,
   Question,
   Snippet,
   SnippetApi,
+  SnippetWithoutMarks,
   UiUser,
   UpdateMeRequest,
-  UpdateMeResponse,
+  UpdatePassword,
+  UpdateResponse,
   UserRequest,
   UserStatistics,
 } from '../types/Types';
@@ -28,7 +33,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Snippet', 'Statistics', 'Comments', 'User'],
+  tagTypes: ['Snippet', 'Statistics', 'Comments', 'User', 'Question', 'Answer'],
   endpoints: (build) => ({
     logIn: build.mutation<Envelope<UiUser> | Envelope<UiUser>[], UserRequest>({
       query: (body) => ({ url: 'api/auth/login', method: 'POST', body }),
@@ -43,9 +48,22 @@ export const api = createApi({
       providesTags: ['User'],
     }),
 
-    updateMe: build.mutation<UpdateMeResponse, UpdateMeRequest>({
+    deleteMe: build.mutation<UiUser, void>({
+      query: () => ({ url: 'api/me', method: 'DELETE' }),
+    }),
+
+    updateMe: build.mutation<UpdateResponse, UpdateMeRequest>({
       query: (body) => ({
         url: 'api/me',
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['User'],
+    }),
+
+    updatePassword: build.mutation<UpdateResponse, UpdatePassword>({
+      query: (body) => ({
+        url: 'api/me/password',
         method: 'PATCH',
         body,
       }),
@@ -93,6 +111,9 @@ export const api = createApi({
         if (args?.page != null) p.set('page', String(args.page));
         if (args?.limit != null) p.set('limit', String(args.limit));
         args?.sortBy?.forEach((s) => p.append('sortBy', s));
+        if (args?.search) p.set('search', args.search);
+        args?.searchBy?.forEach((f) => p.append('searchBy', f));
+
         return { url: `api/snippets${p.toString() ? `?${p}` : ''}`, method: 'GET' };
       },
 
@@ -134,6 +155,16 @@ export const api = createApi({
           : [{ type: 'Snippet' as const, id: 'LIST' }],
     }),
 
+    deleteSnippet: build.mutation<SnippetWithoutMarks, { id: number }>({
+      query: ({ id }) => ({ url: `/api/snippets/${id}`, method: 'DELETE' }),
+      invalidatesTags: (_result, _err, arg) => ['Snippet'],
+    }),
+
+    editSnippet: build.mutation<UpdateResponse, SnippetWithoutMarks>({
+      query: ({ id, ...patch }) => ({ url: `/api/snippets/${id}`, method: 'PATCH', body: patch }),
+      invalidatesTags: (_result, _err, arg) => ['Snippet'],
+    }),
+
     markSnippet: build.mutation<any, { id: number; mark: 'like' | 'dislike' | 'none' }>({
       query: ({ id, mark }) => ({
         url: `api/snippets/${id}/mark`,
@@ -162,6 +193,24 @@ export const api = createApi({
         searchBy?.forEach((f) => params.append('searchBy', f));
         return { url: `api/questions?${params.toString()}` };
       },
+      providesTags: ['Question', 'Answer'],
+    }),
+
+    askQuestion: build.mutation<AskQuestion, AskQuestion>({
+      query: (body) => ({
+        url: '/api/questions',
+        method: 'POST',
+        body,
+      }),
+    }),
+
+    createAnswer: build.mutation<Answer, NewAnswer>({
+      query: (body) => ({
+        url: '/api/answers',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (_res, _err, arg) => ['Answer'],
     }),
 
     users: build.query<Envelope<Envelope<UiUser[]>>, QueryArgs>({
@@ -193,4 +242,10 @@ export const {
   useQuestionsQuery,
   useUsersQuery,
   useUpdateMeMutation,
+  useUpdatePasswordMutation,
+  useAskQuestionMutation,
+  useCreateAnswerMutation,
+  useDeleteMeMutation,
+  useDeleteSnippetMutation,
+  useEditSnippetMutation,
 } = api;

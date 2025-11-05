@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { updateUsername } from '../../app/slices/authSlice';
-import { useUpdateMeMutation } from '../../services/api';
+import { useUpdateMeMutation, useUpdatePasswordMutation } from '../../services/api';
 
 export default function AccountForm() {
   const dispatch = useDispatch();
@@ -13,6 +13,7 @@ export default function AccountForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const [updateMe, { isLoading }] = useUpdateMeMutation();
+  const [updatePassword] = useUpdatePasswordMutation();
 
   const handleSave = async () => {
     if (!newUsername.trim()) return;
@@ -22,6 +23,19 @@ export default function AccountForm() {
       dispatch(updateUsername(newUsername));
     } catch (error) {
       console.error('Failed to update username', error);
+    }
+  };
+
+  const handleChange = async () => {
+    if (oldPassword !== newPassword && confirmPassword == newPassword) {
+      try {
+        await updatePassword({ oldPassword: oldPassword, newPassword: newPassword }).unwrap();
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } catch (error) {
+        console.error('Failed to update password', error);
+      }
     }
   };
 
@@ -52,7 +66,6 @@ export default function AccountForm() {
           maxWidth: 900,
         }}
       >
-        {/* Смена имени */}
         <Stack spacing={2}>
           <Typography variant="subtitle1" color="primary" fontWeight={600}>
             Change your username
@@ -94,7 +107,7 @@ export default function AccountForm() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             fullWidth
           />
-          <Button variant="contained" color="primary" size="large">
+          <Button variant="contained" color="primary" size="large" onClick={handleChange}>
             Change password
           </Button>
         </Stack>

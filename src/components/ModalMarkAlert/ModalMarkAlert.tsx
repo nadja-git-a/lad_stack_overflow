@@ -6,7 +6,6 @@ import {
   DialogTitle,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface ModalProps {

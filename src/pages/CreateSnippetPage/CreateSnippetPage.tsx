@@ -1,26 +1,14 @@
-import {
-  Box,
-  Button,
-  Container,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
-import React from 'react';
+import { Button, Container, Paper, Stack, TextField, Typography } from '@mui/material';
+import React, { useState } from 'react';
 
+import LanguageSelect from '../../components/LanguageSelect/LanguageSelect';
 import { useCreateSnippetMutation } from '../../services/api';
 
 export default function CreateSnippetPage() {
-  const [language, setLanguage] = React.useState('');
-  const [code, setCode] = React.useState('');
+  const [language, setLanguage] = useState('');
+  const [code, setCode] = useState('');
   const [createSnippet] = useCreateSnippetMutation();
 
-  const handleChangeLanguage = (e: any) => setLanguage(e.target.value);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -44,25 +32,7 @@ export default function CreateSnippetPage() {
           }}
         >
           <Stack spacing={3}>
-            <FormControl fullWidth>
-              <InputLabel id="language">Language</InputLabel>
-              <Select
-                labelId="language"
-                id="language-select"
-                label="Language"
-                value={language}
-                onChange={handleChangeLanguage}
-              >
-                <MenuItem value="JavaScript">JavaScript</MenuItem>
-                <MenuItem value="Python">Python</MenuItem>
-                <MenuItem value="Java">Java</MenuItem>
-                <MenuItem value="C/C++">C/C++</MenuItem>
-                <MenuItem value="C#">C#</MenuItem>
-                <MenuItem value="Go">Go</MenuItem>
-                <MenuItem value="Kotlin">Kotlin</MenuItem>
-                <MenuItem value="Ruby">Ruby</MenuItem>
-              </Select>
-            </FormControl>
+            <LanguageSelect value={language} onChange={setLanguage}></LanguageSelect>
 
             <div>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>

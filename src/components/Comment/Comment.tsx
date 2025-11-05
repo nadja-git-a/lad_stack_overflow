@@ -1,4 +1,4 @@
-import { Avatar, Box, Card, CardContent, CardHeader, Typography } from '@mui/material';
+import { Avatar, Box, Typography } from '@mui/material';
 
 export interface CommentProps {
   username: string;

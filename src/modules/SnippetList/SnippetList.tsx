@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import { RootState } from '../../app/store';
+import LanguageSelect from '../../components/LanguageSelect/LanguageSelect';
 import ModalMarkAlert from '../../components/ModalMarkAlert/ModalMarkAlert';
 import SnippetCard from '../../components/SnippetCard/SnippetCard';
 import { api, useMarkSnippetMutation, useSnippetsQuery } from '../../services/api';
@@ -17,8 +18,11 @@ export default function SnippetList({
   search = '',
 }: QueryArgs) {
   const [statePage, setStatePage] = useState(1);
+  const [language, setLanguage] = useState('');
   const [openModal, setOpenModal] = useState(false);
-
+  const [markSnippet] = useMarkSnippetMutation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { isAuth } = useSelector((state: RootState) => state.auth);
   const { data, isLoading, isError, refetch } = useSnippetsQuery(
     {
@@ -26,7 +30,8 @@ export default function SnippetList({
       page: statePage,
       limit,
       sortBy,
-      search,
+      search: language,
+      searchBy: ['language'],
     },
     { refetchOnMountOrArgChange: true },
   );
@@ -35,10 +40,6 @@ export default function SnippetList({
     const srvPage = data?.meta?.currentPage;
     if (srvPage && srvPage !== page) setStatePage(srvPage);
   }, [data?.meta, page]);
-
-  const [markSnippet] = useMarkSnippetMutation();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   if (isLoading) return <CircularProgress />;
   if (isError || !data) return <div>Something went wrong...</div>;
@@ -100,6 +101,11 @@ export default function SnippetList({
           mb: 4,
         }}
       />
+
+      <Box sx={{ maxWidth: 300, mx: 'auto', my: 2 }}>
+        <LanguageSelect value={language} onChange={setLanguage} />
+      </Box>
+
       <Box
         sx={{
           display: 'flex',

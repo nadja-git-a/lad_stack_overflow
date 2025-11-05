@@ -4,15 +4,22 @@ import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
 import {
   Avatar,
   Badge,
+  Button,
   Card,
   CardActions,
   CardContent,
   CardHeader,
   IconButton,
+  Stack,
   Typography,
 } from '@mui/material';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
+import { RootState } from '../../app/store';
+import { useDeleteSnippetMutation, useEditSnippetMutation } from '../../services/api';
 import { Snippet } from '../../types/Types';
+import ModalSnippet from '../ModalSnippet/ModalSnippet';
 
 export interface SnippetCardProps {
   snippet: Omit<Snippet, 'marks'>;
@@ -30,7 +37,31 @@ export default function SnippetCard({
   onClick,
 }: SnippetCardProps) {
   const { id, language, code, user, likesCount, dislikesCount } = snippet;
+  const userSavedId = useSelector((state: RootState) => state.auth.id);
+  const [deleteSnippet] = useDeleteSnippetMutation();
+  const [editSnippet] = useEditSnippetMutation();
+
+  const [editOpen, setEditOpen] = useState(false);
+
+  if (user == undefined) return;
   const initial = user?.username?.[0]?.toUpperCase() ?? '?';
+
+  const handleDelete = async (snippetId: number) => {
+    try {
+      await deleteSnippet({ id: snippetId }).unwrap();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleEditSave = async (nextCode: string) => {
+    try {
+      await editSnippet({ id, code: nextCode, language: language }).unwrap();
+      setEditOpen(false);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <Card sx={{ mb: 2, width: '90%' }} onClick={onClick}>
@@ -38,6 +69,40 @@ export default function SnippetCard({
         avatar={<Avatar aria-label="user">{initial}</Avatar>}
         title={user.username}
         subheader={language}
+        action={
+          user.id == userSavedId && (
+            <Stack direction="row" spacing={1}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditOpen(true);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                color="error"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(id);
+                }}
+              >
+                Delete
+              </Button>
+            </Stack>
+          )
+        }
+      />
+
+      <ModalSnippet
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        code={code}
+        onSave={handleEditSave}
       />
 
       <CardContent>

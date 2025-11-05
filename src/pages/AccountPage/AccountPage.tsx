@@ -1,18 +1,21 @@
 import { Avatar, Box, Button, Card, Container, Paper, Stack, Typography } from '@mui/material';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import { logout } from '../../app/slices/authSlice';
 import { RootState } from '../../app/store';
 import AccountForm from '../../components/AccountForm/AccountForm';
-import { useUserStatisticsQuery } from '../../services/api';
+import { useDeleteMeMutation, useUserStatisticsQuery } from '../../services/api';
 
 export default function AccountPage() {
   const username = useSelector((state: RootState) => state.auth.username);
   const id = useSelector((state: RootState) => state.auth.id);
   const role = useSelector((state: RootState) => state.auth.role);
+  const [deleteMe] = useDeleteMeMutation();
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const {
     data: statsResponse,
@@ -21,6 +24,16 @@ export default function AccountPage() {
   } = useUserStatisticsQuery(id != null ? { id } : skipToken);
 
   const stats = statsResponse?.data;
+
+  const handleDelete = async () => {
+    try {
+      await deleteMe().unwrap();
+      dispatch(logout());
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <>
@@ -127,7 +140,12 @@ export default function AccountPage() {
               Log out
             </Button>
 
-            <Button variant="text" color="error" sx={{ textTransform: 'none', fontWeight: 600 }}>
+            <Button
+              variant="text"
+              color="error"
+              sx={{ textTransform: 'none', fontWeight: 600 }}
+              onClick={handleDelete}
+            >
               Delete this account
             </Button>
           </Stack>

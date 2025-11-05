@@ -1,7 +1,7 @@
 import { Alert, CircularProgress, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-import QuestionCard from '../../components/Question/Question';
+import QuestionCard from '../../components/QuestionCard/QuestionCard';
 import { useQuestionsQuery } from '../../services/api';
 import { QueryArgs, Question } from '../../types/Types';
 

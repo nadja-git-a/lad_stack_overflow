@@ -1,4 +1,4 @@
-import { Divider, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { useSelector } from 'react-redux';
 
 import { RootState } from '../../app/store';

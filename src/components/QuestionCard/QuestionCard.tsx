@@ -1,11 +1,9 @@
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Avatar,
-  Box,
   Card,
   CardContent,
   CardHeader,
@@ -19,7 +17,7 @@ import { Question } from '../../types/Types';
 
 interface QuestionProps {
   question: Question;
-  onOpen?: (id: number) => void;
+  onOpen?: (id: string) => void;
 }
 
 export default function QuestionCard({ question, onOpen }: QuestionProps) {
@@ -31,6 +29,9 @@ export default function QuestionCard({ question, onOpen }: QuestionProps) {
   const handleToggle = () => {
     setExpanded((prev) => !prev);
   };
+
+  // console.log('questionId:!', id);
+  // console.log('question:!', question);
 
   return (
     <div>
@@ -88,7 +89,7 @@ export default function QuestionCard({ question, onOpen }: QuestionProps) {
             id="panel-header"
           ></AccordionSummary>
           <AccordionDetails>
-            <AnswersList answers={answers}></AnswersList>
+            <AnswersList questionId={question.id} answers={answers}></AnswersList>
           </AccordionDetails>
         </Accordion>
       </Card>

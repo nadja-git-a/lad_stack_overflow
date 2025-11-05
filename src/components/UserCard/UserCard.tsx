@@ -24,7 +24,6 @@ export default function UserCard({ user }: UserProp) {
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
             sx={{
-              bgcolor: 'primary.main',
               width: 64,
               height: 64,
               fontSize: 28,
