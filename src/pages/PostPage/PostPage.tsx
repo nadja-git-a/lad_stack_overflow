@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Box,
   Button,
@@ -8,10 +9,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
-import React from 'react';
+import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { z } from 'zod';
 
 import SnippetCard from '../../components/SnippetCard/SnippetCard';
 import CommentsList from '../../modules/CommentsList/CommentsList';
@@ -22,12 +23,26 @@ import {
   useSnippetByIdQuery,
 } from '../../services/api';
 
+const CommentSchema = z.object({
+  comment: z.string().min(10, 'A comment should contain at least 20 characters'),
+});
+type CommentFormType = z.infer<typeof CommentSchema>;
+
 export default function PostPage() {
   const { id } = useParams<{ id: string }>();
   const [markSnippet] = useMarkSnippetMutation();
   const [leaveComment] = useLeaveCommentMutation();
   const dispatch = useDispatch();
-  const [comment, setComment] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+    reset,
+  } = useForm<CommentFormType>({
+    resolver: zodResolver(CommentSchema),
+    mode: 'onTouched',
+  });
 
   const {
     data: snippet,
@@ -51,10 +66,6 @@ export default function PostPage() {
     dislikesCount: snippet.data.dislikesCount,
   };
 
-  console.log('postpage snippet.data.dislikesCount', snippet.data.dislikesCount);
-
-  console.log('postpage snippet.data.data.comments', snippet.data.comments);
-
   if (snippet.data.comments == undefined) return;
 
   const handleLike = async (id: number) => {
@@ -69,20 +80,14 @@ export default function PostPage() {
     refetch();
   };
 
-  const handleComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!comment.trim()) {
-      return;
-    }
-
+  const onSubmit = async (data: CommentFormType) => {
     await leaveComment({
       snippetId: Number(id),
-      content: comment.trim(),
+      content: data.comment,
     });
 
-    setComment('');
     dispatch(api.util.invalidateTags(['Comments']));
+    reset();
   };
 
   return (
@@ -125,24 +130,24 @@ export default function PostPage() {
               Add a Comment
             </Typography>
 
-            <Box component="form" onSubmit={handleComment}>
+            <Box component="form" onSubmit={handleSubmit(onSubmit)}>
               <Stack direction="row" spacing={2} alignItems="center">
                 <TextField
                   fullWidth
                   label="Leave a comment..."
+                  {...register('comment')}
                   variant="outlined"
                   size="small"
                   sx={{
                     backgroundColor: 'background.paper',
                     borderRadius: 2,
                   }}
-                  onChange={(e) => {
-                    setComment(e.target.value);
-                  }}
-                  value={comment}
+                  error={!!errors.comment}
+                  helperText={errors.comment?.message}
                 />
                 <Button
                   type="submit"
+                  disabled={isSubmitting || isLoading}
                   variant="contained"
                   sx={{
                     px: 4,

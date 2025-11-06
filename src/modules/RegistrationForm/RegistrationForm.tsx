@@ -1,57 +1,66 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, TextField, Typography } from '@mui/material';
-import React from 'react';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 import style from './RegistrationForm.module.css';
 import { setUser } from '../../app/slices/authSlice';
-import { useRegisterMutation } from '../../services/api';
+import { useRegisterUserMutation } from '../../services/api';
+
+export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
+
+const RegistrationSchema = z
+  .object({
+    username: z.string().min(5, 'Username should contain at least 5 characters'),
+    password: z
+      .string()
+      .min(6, 'Password should contain at least 6 characters')
+      .regex(
+        PASSWORD_REGEX,
+        'Password must contain at least one lowercase letter, one uppercase letter, one number and one symbol',
+      ),
+    confirm: z.string(),
+  })
+  .refine((v) => v.password === v.confirm, {
+    path: ['confirm'],
+    message: 'Passwords do not match',
+  });
+
+type RegistrationFormType = z.infer<typeof RegistrationSchema>;
 
 export default function RegistrationForm() {
-  const [register, { isLoading, error }] = useRegisterMutation();
+  const [registerUser, { isLoading }] = useRegisterUserMutation();
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmation, setConfirmation] = useState('');
-  const [localError, setLocalError] = useState<string | null>(null);
-
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  function getFieldError(error: any, field: string): string | undefined {
-    if (!error || !('data' in error)) return undefined;
-    const e = error.data.errors?.find((e: any) => e.field === field);
-    return e?.failures?.[0];
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegistrationFormType>({
+    resolver: zodResolver(RegistrationSchema),
+    mode: 'onTouched',
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLocalError(null);
-
-    if (confirmation !== password) {
-      setLocalError('Passwords do not match');
-      return;
-    }
+  const onSubmit = async (data: RegistrationFormType) => {
     try {
-      const raw = await register({ username, password }).unwrap();
+      const raw = await registerUser({ username: data.username, password: data.password }).unwrap();
       const result = Array.isArray(raw) ? raw[0] : raw;
-
-      console.log('Success:', result);
-
       const user = result.data;
       dispatch(setUser(user));
-      console.log(user);
-
       localStorage.setItem('user', JSON.stringify(user));
 
       navigate('/', { replace: true });
-    } catch (err) {
-      console.error('Registration error', err);
+    } catch (e) {
+      console.log(e);
     }
   };
+
   return (
-    <form className={style.example} onSubmit={handleSubmit}>
+    <form className={style.example} onSubmit={handleSubmit(onSubmit)}>
       <Typography variant="h1" color="primary">
         Sign up
       </Typography>
@@ -59,10 +68,9 @@ export default function RegistrationForm() {
       <TextField
         label="Username"
         variant="standard"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        error={!!getFieldError(error, 'username')}
-        helperText={getFieldError(error, 'username')}
+        {...register('username')}
+        error={!!errors.username}
+        helperText={errors.username?.message}
         fullWidth
       ></TextField>
 
@@ -70,10 +78,9 @@ export default function RegistrationForm() {
         label="Password"
         variant="standard"
         type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        error={!!getFieldError(error, 'password')}
-        helperText={getFieldError(error, 'password')}
+        {...register('password')}
+        error={!!errors.password}
+        helperText={errors.password?.message}
         fullWidth
       ></TextField>
 
@@ -81,12 +88,9 @@ export default function RegistrationForm() {
         label="Confirm password"
         variant="standard"
         type="password"
-        value={confirmation}
-        onChange={(e) => {
-          setConfirmation(e.target.value);
-        }}
-        error={!!localError}
-        helperText={localError || ''}
+        {...register('confirm')}
+        error={!!errors.confirm}
+        helperText={errors.confirm?.message}
         fullWidth
       ></TextField>
 
@@ -94,7 +98,7 @@ export default function RegistrationForm() {
         variant="contained"
         color="secondary"
         type="submit"
-        disabled={isLoading}
+        disabled={isSubmitting || isLoading}
         sx={{ m: 2 }}
       >
         SIGN UP

@@ -39,7 +39,7 @@ export const api = createApi({
       query: (body) => ({ url: 'api/auth/login', method: 'POST', body }),
     }),
 
-    register: build.mutation<Envelope<UiUser> | Envelope<UiUser>[], UserRequest>({
+    registerUser: build.mutation<Envelope<UiUser> | Envelope<UiUser>[], UserRequest>({
       query: (body) => ({ url: 'api/register', method: 'POST', body }),
     }),
 
@@ -231,7 +231,7 @@ export const api = createApi({
 
 export const {
   useLogInMutation,
-  useRegisterMutation,
+  useRegisterUserMutation,
   useAuthQuery,
   useSnippetsQuery,
   useMarkSnippetMutation,

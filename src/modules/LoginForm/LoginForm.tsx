@@ -1,48 +1,60 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, TextField, Typography } from '@mui/material';
-import { useState } from 'react';
-import React from 'react';
+import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 import style from './LoginForm.module.css';
 import { setUser } from '../../app/slices/authSlice';
 import { useLogInMutation } from '../../services/api';
 
-export default function LoginForm() {
-  const [logIn, { isLoading, error }] = useLogInMutation();
+export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+const LoginSchema = z.object({
+  username: z.string().min(5, 'Username should contain at least 5 characters'),
+  password: z
+    .string()
+    .min(6, 'Password should contain at least 6 characters')
+    .regex(
+      PASSWORD_REGEX,
+      'Password must contain at least one lowercase letter, one uppercase letter, one number and one symbol',
+    ),
+});
+
+type LoginFormType = z.infer<typeof LoginSchema>;
+
+export default function LoginForm() {
+  const [logIn, { isLoading }] = useLogInMutation();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = useForm<LoginFormType>({
+    resolver: zodResolver(LoginSchema),
+    mode: 'onTouched',
+  });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  function getError(err: any): string | undefined {
-    if (!err || !('data' in err)) return undefined;
-    const data = err.data as any;
-    return data?.message || data?.detail || data?.error || undefined;
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormType) => {
     try {
-      const raw = await logIn({ username, password }).unwrap();
+      const raw = await logIn({ username: data.username, password: data.password }).unwrap();
       const result = Array.isArray(raw) ? raw[0] : raw;
-
       const user = result.data;
       dispatch(setUser(user));
-      console.log(user);
-
       localStorage.setItem('user', JSON.stringify(user));
 
       navigate('/', { replace: true });
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.log(e);
     }
   };
 
   return (
-    <form className={style.example} onSubmit={handleSubmit}>
+    <form className={style.example} onSubmit={handleSubmit(onSubmit)}>
       <Typography variant="h1" color="primary">
         Log in
       </Typography>
@@ -50,10 +62,9 @@ export default function LoginForm() {
       <TextField
         label="Username"
         variant="standard"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        error={!!getError(error)}
-        helperText={getError(error)}
+        {...register('username')}
+        error={!!errors.username}
+        helperText={errors.username?.message}
         fullWidth
       ></TextField>
 
@@ -61,12 +72,9 @@ export default function LoginForm() {
         label="Password"
         variant="standard"
         type="password"
-        value={password}
-        onChange={(e) => {
-          setPassword(e.target.value);
-        }}
-        error={!!getError(error)}
-        helperText={getError(error)}
+        {...register('password')}
+        error={!!errors.password}
+        helperText={errors.password?.message}
         fullWidth
       ></TextField>
 
@@ -74,7 +82,7 @@ export default function LoginForm() {
         variant="contained"
         color="secondary"
         type="submit"
-        disabled={isLoading}
+        disabled={isSubmitting || isLoading}
         sx={{ m: 2 }}
       >
         LOG IN

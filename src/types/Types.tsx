@@ -1,3 +1,6 @@
+type Role = 'user' | 'admin';
+export type MarkType = 'like' | 'dislike';
+
 export interface UserRequest {
   username: string;
   password: string;
@@ -43,9 +46,6 @@ export interface UserStatisticData {
 export interface UserStatistics extends UiUser {
   statistic: UserStatisticData;
 }
-
-type Role = 'user' | 'admin';
-export type MarkType = 'like' | 'dislike';
 
 export interface Mark {
   id: string;
