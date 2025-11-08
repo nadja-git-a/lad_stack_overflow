@@ -1,10 +1,10 @@
 import { Box, CardContent, Typography } from '@mui/material';
 
 import Comment from '../../components/Comment/Comment';
-import { CommentResponse, Envelope } from '../../types/Types';
+import { CommentResponse } from '../../types/Types';
 
 export interface CommentListProps {
-  comments: Envelope<CommentResponse[]>;
+  comments: CommentResponse[];
 }
 
 export default function CommentsList({ comments }: CommentListProps) {
@@ -18,7 +18,7 @@ export default function CommentsList({ comments }: CommentListProps) {
           p: 3,
           textAlign: 'center',
           borderRadius: 2,
-          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backgroundColor: (theme) => theme.palette.action.hover,
         }}
       >
         <Typography variant="body1" color="text.secondary">

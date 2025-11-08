@@ -13,14 +13,15 @@ export default function AnswerCard({ answer }: AnswerProp) {
         display: 'flex',
         alignItems: 'flex-start',
         width: '100%',
-        p: '6px 10px',
+        py: 0.75,
+        px: 1.25,
         '&::before': {
           content: '"•"',
           color: 'text.secondary',
           fontWeight: 'bold',
           display: 'inline-block',
           width: '1em',
-          ml: '4px',
+          ml: 0.5,
         },
       }}
     >

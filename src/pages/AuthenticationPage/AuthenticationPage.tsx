@@ -1,5 +1,5 @@
-import { Button, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import { Box, Button, Typography } from '@mui/material';
+import { useState } from 'react';
 
 import LoginForm from '../../modules/LoginForm/LoginForm';
 import RegistrationForm from '../../modules/RegistrationForm/RegistrationForm';
@@ -10,8 +10,8 @@ export default function AuthenticationPage() {
   const toggleForm = () => setIsLogin((prev) => !prev);
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -40,6 +40,6 @@ export default function AuthenticationPage() {
           </Button>
         </>
       )}
-    </div>
+    </Box>
   );
 }

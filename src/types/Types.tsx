@@ -80,7 +80,9 @@ export interface Snippet extends SnippetApi {
 }
 
 export interface CommentResponse {
-  data: { id: string | number; content: string; user: UiUser };
+  id: string | number;
+  content: string;
+  user: UiUser;
 }
 export interface MyComment {
   content: string;

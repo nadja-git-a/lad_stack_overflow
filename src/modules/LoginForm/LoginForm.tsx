@@ -52,7 +52,7 @@ export default function LoginForm() {
         flexDirection: 'column',
         alignItems: 'center',
         width: '50%',
-        maxWidth: '300px',
+        maxWidth: 300,
         gap: theme.spacing(2.5),
         padding: theme.spacing(2.5, 1.1),
       })}

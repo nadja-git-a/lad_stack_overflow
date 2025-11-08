@@ -120,7 +120,7 @@ export default function SnippetCard({
           component="pre"
           sx={{
             fontFamily: 'monospace',
-            backgroundColor: '#f5f5f5',
+            backgroundColor: 'grey.100',
             p: 1,
             borderRadius: 1,
             whiteSpace: 'pre-wrap',

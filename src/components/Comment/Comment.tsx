@@ -11,7 +11,7 @@ export default function Comment({ username, content }: CommentProps) {
     <Box
       sx={{
         width: '100%',
-        p: '10px',
+        p: 1.25,
       }}
     >
       <Box

@@ -50,7 +50,7 @@ export default function AccountPage() {
             p: 4,
             borderRadius: 3,
             boxShadow: 4,
-            backgroundColor: '#fff',
+            backgroundColor: 'common.white',
           }}
         >
           <Box

@@ -45,7 +45,6 @@ export default function SnippetList({
   if (isError || !data) return <div>Something went wrong...</div>;
 
   const snippets = data?.data ?? ['something went wrong'];
-  const currentPage = data.meta?.currentPage;
   const totalPages = data.meta?.totalPages;
 
   const handlePageChange = (_e: React.ChangeEvent<unknown>, value: number) => {
