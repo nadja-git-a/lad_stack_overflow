@@ -3,10 +3,12 @@ import { Box, Button, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
 
 import { LoginFormType, loginSchema } from './schemas/schema';
 import { setUser } from '../../app/slices/authSlice';
 import { useLogInMutation } from '../../services/api';
+import { ErrorMessage } from '../../types/Types';
 
 export default function LoginForm() {
   const [logIn, { isLoading }] = useLogInMutation();
@@ -32,8 +34,12 @@ export default function LoginForm() {
       localStorage.setItem('user', JSON.stringify(user));
 
       navigate('/', { replace: true });
-    } catch (e) {
-      console.log(e);
+    } catch (e: unknown) {
+      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
+
+      toast.error(`Something went wrong: ${error}`, {
+        position: 'bottom-right',
+      });
     }
   };
 
@@ -52,6 +58,8 @@ export default function LoginForm() {
       })}
       onSubmit={handleSubmit(onSubmit)}
     >
+      <ToastContainer />
+
       <Typography variant="h1" color="primary">
         Log in
       </Typography>

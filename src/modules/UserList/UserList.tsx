@@ -62,8 +62,6 @@ export default function UserList() {
   const totalPages = data?.data?.meta?.totalPages ?? 1;
   const hasMore = page < totalPages;
 
-  console.log(data?.data?.meta?.totalItems, data?.data?.meta?.totalPages);
-
   return (
     <Paper
       sx={{

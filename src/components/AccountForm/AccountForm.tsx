@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Button, Divider, Grid, Stack, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
+import { toast, ToastContainer } from 'react-toastify';
 
 import {
   PasswordFormType,
@@ -11,6 +12,7 @@ import {
 } from './schemas/schemas';
 import { updateUsername } from '../../app/slices/authSlice';
 import { useUpdateMeMutation, useUpdatePasswordMutation } from '../../services/api';
+import { ErrorMessage } from '../../types/Types';
 
 export default function AccountForm() {
   const [updateMe, { isLoading }] = useUpdateMeMutation();
@@ -43,8 +45,12 @@ export default function AccountForm() {
       await updateMe({ username: data.newUsername }).unwrap();
       dispatch(updateUsername(data.newUsername));
       resetUsername();
-    } catch (error) {
-      console.error('Failed to update username', error);
+    } catch (e: unknown) {
+      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
+
+      toast.error(`Something went wrong: ${error}`, {
+        position: 'bottom-right',
+      });
     }
   };
 
@@ -55,8 +61,12 @@ export default function AccountForm() {
         newPassword: data.newPassword,
       }).unwrap();
       resetPassword();
-    } catch (error) {
-      console.error('Failed to update password', error);
+    } catch (e: unknown) {
+      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
+
+      toast.error(`Something went wrong: ${error}`, {
+        position: 'bottom-right',
+      });
     }
   };
 
@@ -70,6 +80,7 @@ export default function AccountForm() {
         alignItems: 'center',
       }}
     >
+      <ToastContainer />
       <Typography variant="h4" color="primary" sx={{ my: 3, textAlign: 'center' }}>
         Edit your profile
       </Typography>

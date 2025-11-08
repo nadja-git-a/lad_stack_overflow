@@ -46,9 +46,7 @@ export default function SnippetList({
 
   const snippets = data?.data ?? ['something went wrong'];
   const currentPage = data.meta?.currentPage;
-  console.log('currentPage', currentPage);
   const totalPages = data.meta?.totalPages;
-  console.log('totalPages', totalPages);
 
   const handlePageChange = (_e: React.ChangeEvent<unknown>, value: number) => {
     setStatePage(value);

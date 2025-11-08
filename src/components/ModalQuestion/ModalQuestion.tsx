@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Button, Dialog, Stack, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
+import { toast, ToastContainer } from 'react-toastify';
 
 import { questionFormType, questionSchema } from './schemas/schema';
 import { useAskQuestionMutation } from '../../services/api';
+import { ErrorMessage } from '../../types/Types';
 
 interface ModalProps {
   open: boolean;
@@ -29,8 +31,12 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
       onClose();
 
       reset();
-    } catch (e) {
-      console.error(e);
+    } catch (e: unknown) {
+      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
+
+      toast.error(`Something went wrong: ${error}`, {
+        position: 'bottom-right',
+      });
     }
   };
 
@@ -42,6 +48,7 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
       maxWidth="sm"
       sx={{ '& .MuiPaper-root': { borderRadius: 3, p: 3 } }}
     >
+      <ToastContainer />
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           variant="outlined"

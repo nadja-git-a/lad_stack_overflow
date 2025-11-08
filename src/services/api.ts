@@ -119,7 +119,6 @@ export const api = createApi({
 
       transformResponse: (raw: { data: Envelope<Snippet[]> }): Envelope<Snippet[]> => {
         const env = raw.data;
-        // console.log({ raw });
         const arr = Array.isArray(raw?.data?.data) ? raw.data.data : [];
 
         const toNum = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);

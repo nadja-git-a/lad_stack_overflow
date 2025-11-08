@@ -1,6 +1,12 @@
 type Role = 'user' | 'admin';
 export type MarkType = 'like' | 'dislike';
 
+export interface ErrorMessage {
+  data: {
+    message: string;
+  };
+}
+
 export interface UserRequest {
   username: string;
   password: string;
