@@ -7,6 +7,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { logout } from '../../app/slices/authSlice';
 import { RootState } from '../../app/store';
 import AccountForm from '../../components/AccountForm/AccountForm';
+import UserInfo from '../../components/UserInfo/UserInfo';
 import { useDeleteMeMutation, useUserStatisticsQuery } from '../../services/api';
 import { ErrorMessage } from '../../types/Types';
 
@@ -101,32 +102,9 @@ export default function AccountPage() {
             }}
           >
             <Stack spacing={1.2}>
-              <Box>
-                <Typography variant="overline" sx={{ color: 'text.secondary', fontSize: 11 }}>
-                  Username
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  {username}
-                </Typography>
-              </Box>
-
-              <Box>
-                <Typography variant="overline" sx={{ color: 'text.secondary', fontSize: 11 }}>
-                  ID
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  {id}
-                </Typography>
-              </Box>
-
-              <Box>
-                <Typography variant="overline" sx={{ color: 'text.secondary', fontSize: 11 }}>
-                  Role
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  {role}
-                </Typography>
-              </Box>
+              <UserInfo title="Username" info={username} />
+              <UserInfo title="ID" info={id} />
+              <UserInfo title="Role" info={role} />
             </Stack>
           </Box>
 
