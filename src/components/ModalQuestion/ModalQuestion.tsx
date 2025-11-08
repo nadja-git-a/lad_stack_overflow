@@ -1,6 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Button, Dialog, Stack, TextField, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
+import { questionFormType, questionSchema } from './schemas/schema';
 import { useAskQuestionMutation } from '../../services/api';
 
 interface ModalProps {
@@ -8,20 +10,25 @@ interface ModalProps {
   onClose: () => void;
 }
 export default function ModalQuestion({ open, onClose }: ModalProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [attachedCode, setAttachedCode] = useState('');
-
   const [askQuestion, { isLoading, error }] = useAskQuestionMutation();
 
-  const handleSubmit = async () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+    reset,
+  } = useForm<questionFormType>({ resolver: zodResolver(questionSchema), mode: 'onTouched' });
+
+  const onSubmit = async (data: questionFormType) => {
     try {
-      await askQuestion({ title, description, attachedCode }).unwrap();
+      await askQuestion({
+        title: data.title,
+        description: data.description,
+        attachedCode: data.attachedCode,
+      }).unwrap();
       onClose();
 
-      setTitle('');
-      setDescription('');
-      setAttachedCode('');
+      reset();
     } catch (e) {
       console.error(e);
     }
@@ -58,8 +65,9 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
           <TextField
             fullWidth
             placeholder="Question title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            {...register('title')}
+            error={!!errors.title}
+            helperText={errors.title?.message}
           />
         </Box>
 
@@ -70,8 +78,9 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
           <TextField
             fullWidth
             placeholder="Question description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            {...register('description')}
+            error={!!errors.description}
+            helperText={errors.description?.message}
           />
         </Box>
 
@@ -80,9 +89,10 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
             Code
           </Typography>
           <TextField
-            value={attachedCode}
-            onChange={(e) => setAttachedCode(e.target.value)}
             fullWidth
+            {...register('attachedCode')}
+            error={!!errors.attachedCode}
+            helperText={errors.attachedCode?.message}
             multiline
             minRows={8}
             placeholder="// paste or type your code here"
@@ -101,8 +111,8 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
         <Button
           variant="contained"
           sx={{ alignSelf: 'flex-end' }}
-          onClick={handleSubmit}
-          disabled={isLoading || !title.trim()}
+          onClick={handleSubmit(onSubmit)}
+          disabled={isLoading || isSubmitting}
         >
           {isLoading ? 'Submitting…' : 'Submit question'}
         </Button>

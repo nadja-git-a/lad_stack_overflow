@@ -1,19 +1,26 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Container, Paper, Stack, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
+import { codeFormType, codeSchema } from './schemas/schema';
 import LanguageSelect from '../../components/LanguageSelect/LanguageSelect';
 import { useCreateSnippetMutation } from '../../services/api';
 
 export default function CreateSnippetPage() {
   const [language, setLanguage] = useState('');
-  const [code, setCode] = useState('');
-  const [createSnippet] = useCreateSnippetMutation();
+  const [createSnippet, { isLoading }] = useCreateSnippetMutation();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+    reset,
+  } = useForm<codeFormType>({ resolver: zodResolver(codeSchema), mode: 'onTouched' });
 
-    createSnippet({ code, language });
-    setCode('');
+  const onSubmit = async (data: codeFormType) => {
+    await createSnippet({ code: data.code, language: language });
+    reset();
   };
   return (
     <>
@@ -24,7 +31,7 @@ export default function CreateSnippetPage() {
       <Container maxWidth="sm" disableGutters>
         <Paper
           component="form"
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           elevation={4}
           sx={{
             p: 4,
@@ -39,9 +46,10 @@ export default function CreateSnippetPage() {
                 Code
               </Typography>
               <TextField
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
                 placeholder="// paste or type your code here"
+                {...register('code')}
+                error={!!errors.code}
+                helperText={errors.code?.message}
                 multiline
                 minRows={8}
                 fullWidth
@@ -59,6 +67,7 @@ export default function CreateSnippetPage() {
 
             <Button
               type="submit"
+              disabled={isSubmitting || isLoading}
               variant="contained"
               size="large"
               sx={{ py: 1.2, borderRadius: 2, textTransform: 'none', fontWeight: 700 }}

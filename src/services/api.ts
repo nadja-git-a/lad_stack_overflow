@@ -43,12 +43,12 @@ export const api = createApi({
       query: (body) => ({ url: 'api/register', method: 'POST', body }),
     }),
 
-    auth: build.query<UiUser, void>({
+    auth: build.query<UiUser, undefined>({
       query: () => ({ url: 'api/auth', method: 'GET' }),
       providesTags: ['User'],
     }),
 
-    deleteMe: build.mutation<UiUser, void>({
+    deleteMe: build.mutation<UiUser, undefined>({
       query: () => ({ url: 'api/me', method: 'DELETE' }),
     }),
 

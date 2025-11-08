@@ -12,8 +12,8 @@ import {
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { z } from 'zod';
 
+import { CommentFormType, commentSchema } from './schemas/schema';
 import SnippetCard from '../../components/SnippetCard/SnippetCard';
 import CommentsList from '../../modules/CommentsList/CommentsList';
 import {
@@ -22,11 +22,6 @@ import {
   useMarkSnippetMutation,
   useSnippetByIdQuery,
 } from '../../services/api';
-
-const CommentSchema = z.object({
-  comment: z.string().min(10, 'A comment should contain at least 20 characters'),
-});
-type CommentFormType = z.infer<typeof CommentSchema>;
 
 export default function PostPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,7 +35,7 @@ export default function PostPage() {
     formState: { isSubmitting, errors },
     reset,
   } = useForm<CommentFormType>({
-    resolver: zodResolver(CommentSchema),
+    resolver: zodResolver(commentSchema),
     mode: 'onTouched',
   });
 

@@ -1,28 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
 
-import style from './LoginForm.module.css';
+import { LoginFormType, loginSchema } from './schemas/schema';
 import { setUser } from '../../app/slices/authSlice';
 import { useLogInMutation } from '../../services/api';
-
-export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-
-const LoginSchema = z.object({
-  username: z.string().min(5, 'Username should contain at least 5 characters'),
-  password: z
-    .string()
-    .min(6, 'Password should contain at least 6 characters')
-    .regex(
-      PASSWORD_REGEX,
-      'Password must contain at least one lowercase letter, one uppercase letter, one number and one symbol',
-    ),
-});
-
-type LoginFormType = z.infer<typeof LoginSchema>;
 
 export default function LoginForm() {
   const [logIn, { isLoading }] = useLogInMutation();
@@ -32,7 +16,7 @@ export default function LoginForm() {
     handleSubmit,
     formState: { isSubmitting, errors },
   } = useForm<LoginFormType>({
-    resolver: zodResolver(LoginSchema),
+    resolver: zodResolver(loginSchema),
     mode: 'onTouched',
   });
 
@@ -54,7 +38,20 @@ export default function LoginForm() {
   };
 
   return (
-    <form className={style.example} onSubmit={handleSubmit(onSubmit)}>
+    <Box
+      component="form"
+      sx={(theme) => ({
+        margin: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '50%',
+        maxWidth: '300px',
+        gap: theme.spacing(2.5),
+        padding: theme.spacing(2.5, 1.1),
+      })}
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Typography variant="h1" color="primary">
         Log in
       </Typography>
@@ -87,6 +84,6 @@ export default function LoginForm() {
       >
         LOG IN
       </Button>
-    </form>
+    </Box>
   );
 }

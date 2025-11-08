@@ -30,9 +30,6 @@ export default function QuestionCard({ question, onOpen }: QuestionProps) {
     setExpanded((prev) => !prev);
   };
 
-  // console.log('questionId:!', id);
-  // console.log('question:!', question);
-
   return (
     <div>
       <Card sx={{ width: '100%', borderRadius: 3 }}>

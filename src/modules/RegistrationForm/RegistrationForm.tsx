@@ -1,34 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
 
-import style from './RegistrationForm.module.css';
+import { RegistrationFormType, registrationSchema } from './schemas/schemas';
 import { setUser } from '../../app/slices/authSlice';
 import { useRegisterUserMutation } from '../../services/api';
-
-export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
-
-const RegistrationSchema = z
-  .object({
-    username: z.string().min(5, 'Username should contain at least 5 characters'),
-    password: z
-      .string()
-      .min(6, 'Password should contain at least 6 characters')
-      .regex(
-        PASSWORD_REGEX,
-        'Password must contain at least one lowercase letter, one uppercase letter, one number and one symbol',
-      ),
-    confirm: z.string(),
-  })
-  .refine((v) => v.password === v.confirm, {
-    path: ['confirm'],
-    message: 'Passwords do not match',
-  });
-
-type RegistrationFormType = z.infer<typeof RegistrationSchema>;
 
 export default function RegistrationForm() {
   const [registerUser, { isLoading }] = useRegisterUserMutation();
@@ -41,7 +19,7 @@ export default function RegistrationForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<RegistrationFormType>({
-    resolver: zodResolver(RegistrationSchema),
+    resolver: zodResolver(registrationSchema),
     mode: 'onTouched',
   });
 
@@ -60,7 +38,20 @@ export default function RegistrationForm() {
   };
 
   return (
-    <form className={style.example} onSubmit={handleSubmit(onSubmit)}>
+    <Box
+      component="form"
+      sx={(theme) => ({
+        margin: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '50%',
+        maxWidth: '300px',
+        gap: theme.spacing(2.5),
+        padding: theme.spacing(2.5, 1.1),
+      })}
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <Typography variant="h1" color="primary">
         Sign up
       </Typography>
@@ -72,7 +63,7 @@ export default function RegistrationForm() {
         error={!!errors.username}
         helperText={errors.username?.message}
         fullWidth
-      ></TextField>
+      />
 
       <TextField
         label="Password"
@@ -82,7 +73,7 @@ export default function RegistrationForm() {
         error={!!errors.password}
         helperText={errors.password?.message}
         fullWidth
-      ></TextField>
+      />
 
       <TextField
         label="Confirm password"
@@ -92,7 +83,7 @@ export default function RegistrationForm() {
         error={!!errors.confirm}
         helperText={errors.confirm?.message}
         fullWidth
-      ></TextField>
+      />
 
       <Button
         variant="contained"
@@ -103,6 +94,6 @@ export default function RegistrationForm() {
       >
         SIGN UP
       </Button>
-    </form>
+    </Box>
   );
 }

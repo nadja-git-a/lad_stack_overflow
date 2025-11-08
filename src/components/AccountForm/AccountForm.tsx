@@ -1,41 +1,62 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Button, Divider, Grid, Stack, TextField, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
+import {
+  PasswordFormType,
+  passwordSchema,
+  UsernameFormType,
+  usernameSchema,
+} from './schemas/schemas';
 import { updateUsername } from '../../app/slices/authSlice';
 import { useUpdateMeMutation, useUpdatePasswordMutation } from '../../services/api';
 
 export default function AccountForm() {
-  const dispatch = useDispatch();
-  const [newUsername, setNewUsername] = useState('');
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
   const [updateMe, { isLoading }] = useUpdateMeMutation();
   const [updatePassword] = useUpdatePasswordMutation();
 
-  const handleSave = async () => {
-    if (!newUsername.trim()) return;
+  const dispatch = useDispatch();
+
+  const {
+    register: registerUsername,
+    handleSubmit: handleSubmitUsername,
+    formState: { errors: usernameErrors, isSubmitting: isUsernameSubmitting },
+    reset: resetUsername,
+  } = useForm<UsernameFormType>({
+    resolver: zodResolver(usernameSchema),
+    mode: 'onTouched',
+  });
+
+  const {
+    register: registerPassword,
+    handleSubmit: handleSubmitPassword,
+    formState: { errors: passwordErrors, isSubmitting: isPasswordSubmitting },
+    reset: resetPassword,
+  } = useForm<PasswordFormType>({
+    resolver: zodResolver(passwordSchema),
+    mode: 'onTouched',
+  });
+
+  const onSave = async (data: UsernameFormType) => {
     try {
-      await updateMe({ username: newUsername }).unwrap();
-      setNewUsername('');
-      dispatch(updateUsername(newUsername));
+      await updateMe({ username: data.newUsername }).unwrap();
+      dispatch(updateUsername(data.newUsername));
+      resetUsername();
     } catch (error) {
       console.error('Failed to update username', error);
     }
   };
 
-  const handleChange = async () => {
-    if (oldPassword !== newPassword && confirmPassword == newPassword) {
-      try {
-        await updatePassword({ oldPassword: oldPassword, newPassword: newPassword }).unwrap();
-        setOldPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-      } catch (error) {
-        console.error('Failed to update password', error);
-      }
+  const onChange = async (data: PasswordFormType) => {
+    try {
+      await updatePassword({
+        oldPassword: data.oldPassword,
+        newPassword: data.newPassword,
+      }).unwrap();
+      resetPassword();
+    } catch (error) {
+      console.error('Failed to update password', error);
     }
   };
 
@@ -66,48 +87,63 @@ export default function AccountForm() {
           maxWidth: 900,
         }}
       >
-        <Stack spacing={2}>
+        <Stack component="form" spacing={2} onSubmit={handleSubmitUsername(onSave)}>
           <Typography variant="subtitle1" color="primary" fontWeight={600}>
             Change your username
           </Typography>
           <TextField
             label="New username"
             variant="outlined"
-            value={newUsername}
-            onChange={(e) => setNewUsername(e.target.value)}
+            {...registerUsername('newUsername')}
+            error={!!usernameErrors.newUsername}
+            helperText={usernameErrors.newUsername?.message}
             fullWidth
           />
-          <Button variant="contained" size="large" onClick={handleSave} disabled={isLoading}>
+          <Button
+            variant="contained"
+            size="large"
+            type="submit"
+            disabled={isLoading || isUsernameSubmitting}
+          >
             {isLoading ? 'Saving...' : 'Save'}
           </Button>
         </Stack>
 
-        <Stack spacing={2}>
+        <Stack component="form" onSubmit={handleSubmitPassword(onChange)} spacing={2}>
           <Typography variant="subtitle1" color="primary" fontWeight={600}>
             Change your password
           </Typography>
           <TextField
             label="Old password"
             type="password"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
+            {...registerPassword('oldPassword')}
+            error={!!passwordErrors.oldPassword}
+            helperText={passwordErrors.oldPassword?.message}
             fullWidth
           />
           <TextField
             label="New password"
             type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            {...registerPassword('newPassword')}
+            error={!!passwordErrors.newPassword}
+            helperText={passwordErrors.newPassword?.message}
             fullWidth
           />
           <TextField
             label="Confirm password"
             type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            {...registerPassword('confirmNewPassword')}
+            error={!!passwordErrors.confirmNewPassword}
+            helperText={passwordErrors.confirmNewPassword?.message}
             fullWidth
           />
-          <Button variant="contained" color="primary" size="large" onClick={handleChange}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            type="submit"
+            disabled={isLoading || isPasswordSubmitting}
+          >
             Change password
           </Button>
         </Stack>

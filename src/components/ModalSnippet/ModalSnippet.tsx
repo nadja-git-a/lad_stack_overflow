@@ -1,5 +1,8 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Button, Dialog, TextField, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+import { AttachedCodeFormType, attachedCodeSchema } from './schemas/schema';
 
 interface ModalProps {
   open: boolean;
@@ -8,12 +11,17 @@ interface ModalProps {
   onSave: (nextCode: string) => void;
 }
 export default function ModalSnippet({ open, onClose, code, onSave }: ModalProps) {
-  const [attachedCode, setAttachedCode] = useState(code);
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = useForm<AttachedCodeFormType>({
+    resolver: zodResolver(attachedCodeSchema),
+    mode: 'onTouched',
+  });
 
-  useEffect(() => setAttachedCode(code), [code, open]);
-
-  const handleSave = () => {
-    onSave(attachedCode);
+  const onSubmit = async (data: AttachedCodeFormType) => {
+    await onSave(data.attachedCode);
   };
 
   return (
@@ -40,9 +48,10 @@ export default function ModalSnippet({ open, onClose, code, onSave }: ModalProps
       </Typography>
 
       <TextField
-        value={attachedCode}
-        onChange={(e) => setAttachedCode(e.target.value)}
         fullWidth
+        {...register('attachedCode')}
+        error={!!errors.attachedCode}
+        helperText={errors.attachedCode?.message}
         multiline
         minRows={8}
         placeholder="// paste or type your code here"
@@ -59,7 +68,7 @@ export default function ModalSnippet({ open, onClose, code, onSave }: ModalProps
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSave} disabled={!attachedCode.trim()}>
+        <Button variant="contained" onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
           Save
         </Button>
       </Box>
