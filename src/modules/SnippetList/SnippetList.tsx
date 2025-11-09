@@ -10,13 +10,7 @@ import SnippetCard from '../../components/SnippetCard/SnippetCard';
 import { api, useMarkSnippetMutation, useSnippetsQuery } from '../../services/api';
 import { QueryArgs } from '../../types/Types';
 
-export default function SnippetList({
-  userId,
-  page,
-  limit,
-  sortBy = ['id:DESC'],
-  search = '',
-}: QueryArgs) {
+export default function SnippetList({ userId, page, limit, sortBy = ['id:DESC'] }: QueryArgs) {
   const [statePage, setStatePage] = useState(1);
   const [language, setLanguage] = useState('');
   const [openModal, setOpenModal] = useState(false);
@@ -57,7 +51,6 @@ export default function SnippetList({
       return;
     }
     await markSnippet({ id, mark: 'like' });
-    refetch();
     dispatch(api.util.invalidateTags(['Snippet']));
   };
 

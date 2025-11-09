@@ -13,7 +13,6 @@ import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import { CommentFormType, commentSchema } from './schemas/schema';
 import SnippetCard from '../../components/SnippetCard/SnippetCard';
 import CommentsList from '../../modules/CommentsList/CommentsList';
 import {
@@ -22,6 +21,7 @@ import {
   useMarkSnippetMutation,
   useSnippetByIdQuery,
 } from '../../services/api';
+import { CommentFormType, commentSchema } from './schemas/schema';
 
 export default function PostPage() {
   const { id } = useParams<{ id: string }>();

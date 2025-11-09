@@ -1,0 +1,231 @@
+diff --git a/.prettierrc b/.prettierrc
+index 281c375..422cd0a 100644
+--- a/.prettierrc
++++ b/.prettierrc
+@@ -1,10 +1,8 @@
+ {
+-    "semi": true,
+-    "singleQuote": true,
+-    "trailingComma": "all",
+-    "tabWidth": 2,
+-    "printWidth": 100,
+-    "endOfLine": "auto"
+-
++  "semi": true,
++  "singleQuote": true,
++  "trailingComma": "all",
++  "tabWidth": 2,
++  "printWidth": 100,
++  "endOfLine": "auto"
+ }
+-  
+\ No newline at end of file
+diff --git a/src/components/AccountForm/AccountForm.tsx b/src/components/AccountForm/AccountForm.tsx
+index 8826189..b4a5b19 100644
+--- a/src/components/AccountForm/AccountForm.tsx
++++ b/src/components/AccountForm/AccountForm.tsx
+@@ -49,7 +49,7 @@ export default function AccountForm() {
+       const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
+ 
+       toast.error(`Something went wrong: ${error}`, {
+-        position: 'bottom-right',
++        position: 'bottom-right', // позиция настраивается один раз глобально в ToastContainer
+       });
+     }
+   };
+@@ -74,7 +74,7 @@ export default function AccountForm() {
+     <Box
+       sx={{
+         p: 4,
+-        display: 'flex',
++        display: 'flex', // используй Stack когда нужно display flex поможет в большинстве случаев
+         flexDirection: 'column',
+         justifyContent: 'center',
+         alignItems: 'center',
+@@ -91,7 +91,7 @@ export default function AccountForm() {
+         container
+         spacing={4}
+         sx={{
+-          display: 'flex',
++          display: 'flex', // grid и display flex ???
+           justifyContent: 'space-evenly',
+           gap: 4,
+           flexWrap: 'wrap',
+@@ -153,7 +153,8 @@ export default function AccountForm() {
+             color="primary"
+             size="large"
+             type="submit"
+-            disabled={isLoading || isPasswordSubmitting}
++            loading={isLoading} // используем пропс loading вместо disabled когда загрузка
++            disabled={isPasswordSubmitting}
+           >
+             Change password
+           </Button>
+diff --git a/src/components/ModalQuestion/ModalQuestion.tsx b/src/components/ModalQuestion/ModalQuestion.tsx
+index b6de6e2..419935a 100644
+--- a/src/components/ModalQuestion/ModalQuestion.tsx
++++ b/src/components/ModalQuestion/ModalQuestion.tsx
+@@ -119,14 +119,14 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
+           variant="contained"
+           sx={{ alignSelf: 'flex-end' }}
+           onClick={handleSubmit(onSubmit)}
+-          disabled={isLoading || isSubmitting}
++          disabled={isLoading || isSubmitting} // loading prop
+         >
+           {isLoading ? 'Submitting…' : 'Submit question'}
+         </Button>
+ 
+         {error && (
+           <Typography color="error" sx={{ mt: 1 }}>
+-            {(error as any)?.data?.message ?? 'Failed to submit'}
++            {(error as any)?.data?.message ?? 'Failed to submit'} // не используй any
+           </Typography>
+         )}
+       </Stack>
+diff --git a/src/components/ModalSnippet/ModalSnippet.tsx b/src/components/ModalSnippet/ModalSnippet.tsx
+index 94db85d..949b865 100644
+--- a/src/components/ModalSnippet/ModalSnippet.tsx
++++ b/src/components/ModalSnippet/ModalSnippet.tsx
+@@ -21,7 +21,7 @@ export default function ModalSnippet({ open, onClose, code, onSave }: ModalProps
+   });
+ 
+   const onSubmit = async (data: AttachedCodeFormType) => {
+-    await onSave(data.attachedCode);
++    await onSave(data.attachedCode); // это синхронная функция
+   };
+ 
+   return (
+diff --git a/src/components/QuestionCard/QuestionCard.tsx b/src/components/QuestionCard/QuestionCard.tsx
+index 28665e7..b7ddd19 100644
+--- a/src/components/QuestionCard/QuestionCard.tsx
++++ b/src/components/QuestionCard/QuestionCard.tsx
+@@ -83,7 +83,7 @@ export default function QuestionCard({ question, onOpen }: QuestionProps) {
+           <AccordionSummary
+             expandIcon={<ExpandMoreIcon />}
+             aria-controls="panel-content"
+-            id="panel-header"
++            id="panel-header" // используй самозакрывающиеся теги если возможно
+           ></AccordionSummary>
+           <AccordionDetails>
+             <AnswersList questionId={question.id} answers={answers}></AnswersList>
+diff --git a/src/components/SnippetCard/SnippetCard.tsx b/src/components/SnippetCard/SnippetCard.tsx
+index 4efa699..d0c6edc 100644
+--- a/src/components/SnippetCard/SnippetCard.tsx
++++ b/src/components/SnippetCard/SnippetCard.tsx
+@@ -51,7 +51,7 @@ export default function SnippetCard({
+     try {
+       await deleteSnippet({ id: snippetId }).unwrap();
+     } catch (e: unknown) {
+-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
++      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error'; // не используй as добавь typeguard
+ 
+       toast.error(`Something went wrong: ${error}`, {
+         position: 'bottom-right',
+@@ -64,7 +64,7 @@ export default function SnippetCard({
+       await editSnippet({ id, code: nextCode, language: language }).unwrap();
+       setEditOpen(false);
+     } catch (e: unknown) {
+-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
++      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error'; // не используй as добавь typeguard
+ 
+       toast.error(`Something went wrong: ${error}`, {
+         position: 'bottom-right',
+@@ -74,6 +74,7 @@ export default function SnippetCard({
+ 
+   return (
+     <Card sx={{ mb: 2, width: '90%' }} onClick={onClick}>
++      {/* ToastContainer должен быть в App */}
+       <ToastContainer />
+       <CardHeader
+         avatar={<Avatar aria-label="user">{initial}</Avatar>}
+diff --git a/src/main.tsx b/src/main.tsx
+index 11daa4b..b07043b 100644
+--- a/src/main.tsx
++++ b/src/main.tsx
+@@ -6,3 +6,6 @@ const rootElement = document.getElementById('root');
+ if (!rootElement) throw new Error('Root element #root not found');
+ 
+ ReactDOM.createRoot(rootElement).render(<App />);
++
++// 1.  Добавь husky который будет запускать lint fix  на пре коммит
++// 2. Сделай так чтобы ошибки prettier отображались в коде редактора
+diff --git a/src/modules/LoginForm/LoginForm.tsx b/src/modules/LoginForm/LoginForm.tsx
+index 8be97d2..e79aedb 100644
+--- a/src/modules/LoginForm/LoginForm.tsx
++++ b/src/modules/LoginForm/LoginForm.tsx
+@@ -58,6 +58,7 @@ export default function LoginForm() {
+       })}
+       onSubmit={handleSubmit(onSubmit)}
+     >
++      {/* ToastContainer должен быть в App */}
+       <ToastContainer />
+ 
+       <Typography variant="h1" color="primary">
+diff --git a/src/modules/RegistrationForm/RegistrationForm.tsx b/src/modules/RegistrationForm/RegistrationForm.tsx
+index ae233e4..152d9a5 100644
+--- a/src/modules/RegistrationForm/RegistrationForm.tsx
++++ b/src/modules/RegistrationForm/RegistrationForm.tsx
+@@ -58,6 +58,7 @@ export default function RegistrationForm() {
+       })}
+       onSubmit={handleSubmit(onSubmit)}
+     >
++      {/* ToastContainer должен быть в App */}
+       <ToastContainer />
+ 
+       <Typography variant="h1" color="primary">
+diff --git a/src/modules/SnippetList/SnippetList.tsx b/src/modules/SnippetList/SnippetList.tsx
+index b26064f..02614b8 100644
+--- a/src/modules/SnippetList/SnippetList.tsx
++++ b/src/modules/SnippetList/SnippetList.tsx
+@@ -15,7 +15,7 @@ export default function SnippetList({
+   page,
+   limit,
+   sortBy = ['id:DESC'],
+-  search = '',
++  search = '', // не используется
+ }: QueryArgs) {
+   const [statePage, setStatePage] = useState(1);
+   const [language, setLanguage] = useState('');
+@@ -57,7 +57,7 @@ export default function SnippetList({
+       return;
+     }
+     await markSnippet({ id, mark: 'like' });
+-    refetch();
++    refetch(); // тут ты используешь и refetch и invalidateTags они вроде инвалидируют одни и теже данные если нет то тогда нормально
+     dispatch(api.util.invalidateTags(['Snippet']));
+   };
+ 
+diff --git a/src/pages/AccountPage/AccountPage.tsx b/src/pages/AccountPage/AccountPage.tsx
+index cd6a73a..14e769b 100644
+--- a/src/pages/AccountPage/AccountPage.tsx
++++ b/src/pages/AccountPage/AccountPage.tsx
+@@ -34,7 +34,7 @@ export default function AccountPage() {
+       dispatch(logout());
+       navigate('/');
+     } catch (e: unknown) {
+-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
++      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error'; // не используй as добавь typeguard
+ 
+       toast.error(`Something went wrong: ${error}`, {
+         position: 'bottom-right',
+@@ -45,6 +45,7 @@ export default function AccountPage() {
+   return (
+     <>
+       <Container maxWidth="sm" sx={{ mt: 6 }}>
++        {/* ToastContainer должен быть в App */}
+         <ToastContainer />
+         <Card
+           sx={{
+diff --git a/src/router/Router.tsx b/src/router/Router.tsx
+index 8ab697e..9c8a173 100644
+--- a/src/router/Router.tsx
++++ b/src/router/Router.tsx
+@@ -12,6 +12,8 @@ import PostPage from '../pages/PostPage/PostPage';
+ import QuestionsPage from '../pages/QuestionPage/QuestionPage';
+ import UsersPage from '../pages/UsersPage/UsersPage';
+ 
++
++// вынеси роуты в переменную
+ export const router = createBrowserRouter([
+   {
+     path: '/',

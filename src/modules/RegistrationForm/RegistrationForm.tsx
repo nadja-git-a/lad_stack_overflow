@@ -3,12 +3,12 @@ import { Box, Button, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
-import { RegistrationFormType, registrationSchema } from './schemas/schemas';
 import { setUser } from '../../app/slices/authSlice';
+import { getErrorMessage } from '../../router/guards/guards';
 import { useRegisterUserMutation } from '../../services/api';
-import { ErrorMessage } from '../../types/Types';
+import { RegistrationFormType, registrationSchema } from './schemas/schemas';
 
 export default function RegistrationForm() {
   const [registerUser, { isLoading }] = useRegisterUserMutation();
@@ -35,11 +35,7 @@ export default function RegistrationForm() {
 
       navigate('/', { replace: true });
     } catch (e: unknown) {
-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
-
-      toast.error(`Something went wrong: ${error}`, {
-        position: 'bottom-right',
-      });
+      toast.error(`Something went wrong: ${getErrorMessage(e)}`);
     }
   };
 
@@ -58,8 +54,6 @@ export default function RegistrationForm() {
       })}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <ToastContainer />
-
       <Typography variant="h1" color="primary">
         Sign up
       </Typography>

@@ -84,7 +84,7 @@ export default function QuestionCard({ question, onOpen }: QuestionProps) {
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel-content"
             id="panel-header"
-          ></AccordionSummary>
+          />
           <AccordionDetails>
             <AnswersList questionId={question.id} answers={answers}></AnswersList>
           </AccordionDetails>

@@ -3,9 +3,7 @@ import { PropsWithChildren } from 'react';
 
 import theme from './theme';
 
-interface MyThemeProviderProps extends PropsWithChildren {}
-
-function MyThemeProvider({ children }: MyThemeProviderProps) {
+function MyThemeProvider({ children }: PropsWithChildren) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

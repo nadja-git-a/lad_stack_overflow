@@ -101,7 +101,7 @@ export const api = createApi({
         return { data: { ...s, likesCount: likes, dislikesCount: dislikes } };
       },
 
-      providesTags: (result, error, { id }) => [{ type: 'Comments' as const, id }],
+      providesTags: (_, __, { id }) => [{ type: 'Comments', id }],
     }),
 
     snippets: build.query<Envelope<Snippet[]>, QueryArgs>({
@@ -122,7 +122,7 @@ export const api = createApi({
         const arr = Array.isArray(raw?.data?.data) ? raw.data.data : [];
 
         const toNum = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
-        const count = (xs: any[] | undefined, t: string) =>
+        const count = (xs: Mark[] | undefined, t: string) =>
           Array.isArray(xs) ? xs.filter((m) => m?.type === t).length : 0;
 
         const parsed: Snippet[] = arr.map((s) => ({
@@ -156,26 +156,26 @@ export const api = createApi({
 
     deleteSnippet: build.mutation<SnippetWithoutMarks, { id: number }>({
       query: ({ id }) => ({ url: `/api/snippets/${id}`, method: 'DELETE' }),
-      invalidatesTags: (_result, _err, arg) => ['Snippet'],
+      invalidatesTags: ['Snippet'],
     }),
 
     editSnippet: build.mutation<UpdateResponse, SnippetWithoutMarks>({
       query: ({ id, ...patch }) => ({ url: `/api/snippets/${id}`, method: 'PATCH', body: patch }),
-      invalidatesTags: (_result, _err, arg) => ['Snippet'],
+      invalidatesTags: ['Snippet'],
     }),
 
-    markSnippet: build.mutation<any, { id: number; mark: 'like' | 'dislike' | 'none' }>({
+    markSnippet: build.mutation<MarkType, { id: number; mark: MarkType }>({
       query: ({ id, mark }) => ({
         url: `api/snippets/${id}/mark`,
         method: 'POST',
         body: { mark },
       }),
-      invalidatesTags: (_result, _err, arg) => ['Statistics'],
+      invalidatesTags: ['Statistics'],
     }),
 
     leaveComment: build.mutation<CommentResponse, MyComment>({
       query: (body) => ({ url: '/api/comments', method: 'POST', body }),
-      invalidatesTags: (_result, _err, arg) => ['Comments'],
+      invalidatesTags: ['Comments'],
     }),
 
     createSnippet: build.mutation<Snippet, CreateSnippet>({
@@ -209,7 +209,7 @@ export const api = createApi({
         method: 'POST',
         body,
       }),
-      invalidatesTags: (_res, _err, arg) => ['Answer'],
+      invalidatesTags: ['Answer'],
     }),
 
     users: build.query<Envelope<Envelope<UiUser[]>>, QueryArgs>({

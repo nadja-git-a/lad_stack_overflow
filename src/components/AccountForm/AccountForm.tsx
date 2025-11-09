@@ -1,18 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Box, Button, Divider, Grid, Stack, TextField, Typography } from '@mui/material';
+import { Button, Divider, Grid, Stack, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
+import { updateUsername } from '../../app/slices/authSlice';
+import { getErrorMessage } from '../../router/guards/guards';
+import { useUpdateMeMutation, useUpdatePasswordMutation } from '../../services/api';
 import {
   PasswordFormType,
   passwordSchema,
   UsernameFormType,
   usernameSchema,
 } from './schemas/schemas';
-import { updateUsername } from '../../app/slices/authSlice';
-import { useUpdateMeMutation, useUpdatePasswordMutation } from '../../services/api';
-import { ErrorMessage } from '../../types/Types';
 
 export default function AccountForm() {
   const [updateMe, { isLoading }] = useUpdateMeMutation();
@@ -46,11 +46,7 @@ export default function AccountForm() {
       dispatch(updateUsername(data.newUsername));
       resetUsername();
     } catch (e: unknown) {
-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
-
-      toast.error(`Something went wrong: ${error}`, {
-        position: 'bottom-right',
-      });
+      toast.error(`Something went wrong: ${getErrorMessage(e)}`);
     }
   };
 
@@ -62,25 +58,12 @@ export default function AccountForm() {
       }).unwrap();
       resetPassword();
     } catch (e: unknown) {
-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
-
-      toast.error(`Something went wrong: ${error}`, {
-        position: 'bottom-right',
-      });
+      toast.error(`Something went wrong: ${getErrorMessage(e)}`);
     }
   };
 
   return (
-    <Box
-      sx={{
-        p: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <ToastContainer />
+    <Stack spacing={2}>
       <Typography variant="h4" color="primary" sx={{ my: 3, textAlign: 'center' }}>
         Edit your profile
       </Typography>
@@ -91,7 +74,6 @@ export default function AccountForm() {
         container
         spacing={4}
         sx={{
-          display: 'flex',
           justifyContent: 'space-evenly',
           gap: 4,
           flexWrap: 'wrap',
@@ -153,12 +135,13 @@ export default function AccountForm() {
             color="primary"
             size="large"
             type="submit"
-            disabled={isLoading || isPasswordSubmitting}
+            loading={isLoading}
+            disabled={isPasswordSubmitting}
           >
             Change password
           </Button>
         </Stack>
       </Grid>
-    </Box>
+    </Stack>
   );
 }

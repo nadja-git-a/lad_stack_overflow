@@ -2,14 +2,14 @@ import { Avatar, Box, Button, Card, Container, Paper, Stack, Typography } from '
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 import { logout } from '../../app/slices/authSlice';
 import { RootState } from '../../app/store';
 import AccountForm from '../../components/AccountForm/AccountForm';
 import UserInfo from '../../components/UserInfo/UserInfo';
+import { getErrorMessage } from '../../router/guards/guards';
 import { useDeleteMeMutation, useUserStatisticsQuery } from '../../services/api';
-import { ErrorMessage } from '../../types/Types';
 
 export default function AccountPage() {
   const username = useSelector((state: RootState) => state.auth.username);
@@ -34,18 +34,13 @@ export default function AccountPage() {
       dispatch(logout());
       navigate('/');
     } catch (e: unknown) {
-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
-
-      toast.error(`Something went wrong: ${error}`, {
-        position: 'bottom-right',
-      });
+      toast.error(`Something went wrong: ${getErrorMessage(e)}`);
     }
   };
 
   return (
     <>
       <Container maxWidth="sm" sx={{ mt: 6 }}>
-        <ToastContainer />
         <Card
           sx={{
             p: 4,

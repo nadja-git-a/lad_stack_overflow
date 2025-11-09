@@ -1,18 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, Button, Dialog, Stack, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
-import { questionFormType, questionSchema } from './schemas/schema';
+import { getErrorMessage } from '../../router/guards/guards';
 import { useAskQuestionMutation } from '../../services/api';
-import { ErrorMessage } from '../../types/Types';
+import { questionFormType, questionSchema } from './schemas/schema';
 
 interface ModalProps {
   open: boolean;
   onClose: () => void;
 }
 export default function ModalQuestion({ open, onClose }: ModalProps) {
-  const [askQuestion, { isLoading, error }] = useAskQuestionMutation();
+  const [askQuestion, { isLoading }] = useAskQuestionMutation();
 
   const {
     register,
@@ -32,11 +32,7 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
 
       reset();
     } catch (e: unknown) {
-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
-
-      toast.error(`Something went wrong: ${error}`, {
-        position: 'bottom-right',
-      });
+      toast.error(`Something went wrong: ${getErrorMessage(e)}`);
     }
   };
 
@@ -48,7 +44,6 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
       maxWidth="sm"
       sx={{ '& .MuiPaper-root': { borderRadius: 3, p: 3 } }}
     >
-      <ToastContainer />
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           variant="outlined"
@@ -119,16 +114,10 @@ export default function ModalQuestion({ open, onClose }: ModalProps) {
           variant="contained"
           sx={{ alignSelf: 'flex-end' }}
           onClick={handleSubmit(onSubmit)}
-          disabled={isLoading || isSubmitting}
+          loading={isLoading || isSubmitting}
         >
           {isLoading ? 'Submitting…' : 'Submit question'}
         </Button>
-
-        {error && (
-          <Typography color="error" sx={{ mt: 1 }}>
-            {(error as any)?.data?.message ?? 'Failed to submit'}
-          </Typography>
-        )}
       </Stack>
     </Dialog>
   );

@@ -15,11 +15,12 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 import { RootState } from '../../app/store';
+import { getErrorMessage } from '../../router/guards/guards';
 import { useDeleteSnippetMutation, useEditSnippetMutation } from '../../services/api';
-import { ErrorMessage, Snippet } from '../../types/Types';
+import { Snippet } from '../../types/Types';
 import ModalSnippet from '../ModalSnippet/ModalSnippet';
 
 export interface SnippetCardProps {
@@ -51,11 +52,7 @@ export default function SnippetCard({
     try {
       await deleteSnippet({ id: snippetId }).unwrap();
     } catch (e: unknown) {
-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
-
-      toast.error(`Something went wrong: ${error}`, {
-        position: 'bottom-right',
-      });
+      toast.error(`Something went wrong: ${getErrorMessage(e)}`);
     }
   };
 
@@ -64,17 +61,12 @@ export default function SnippetCard({
       await editSnippet({ id, code: nextCode, language: language }).unwrap();
       setEditOpen(false);
     } catch (e: unknown) {
-      const error = (e as ErrorMessage)?.data?.message ?? 'Unknown error';
-
-      toast.error(`Something went wrong: ${error}`, {
-        position: 'bottom-right',
-      });
+      toast.error(`Something went wrong: ${getErrorMessage(e)}`);
     }
   };
 
   return (
     <Card sx={{ mb: 2, width: '90%' }} onClick={onClick}>
-      <ToastContainer />
       <CardHeader
         avatar={<Avatar aria-label="user">{initial}</Avatar>}
         title={user.username}

@@ -1,52 +1,66 @@
 {
-    "name": "lad_stack_overflow",
-    "version": "1.0.0",
-    "type": "module",
-    "private": true,
-    "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "preview": "vite preview"
-    },
-    "dependencies": {
-        "@emotion/react": "^11.14.0",
-        "@emotion/styled": "^11.14.1",
-        "@hookform/resolvers": "^5.2.2",
-        "@mui/icons-material": "^7.3.4",
-        "@mui/material": "^7.3.4",
-        "@reduxjs/toolkit": "^2.9.1",
-        "react": "^19.0.0",
-        "react-dom": "^19.0.0",
-        "react-hook-form": "^7.66.0",
-        "react-redux": "^9.2.0",
-        "react-router-dom": "^7.9.4",
-        "react-toastify": "^11.0.5",
-        "zod": "^4.1.12"
-    },
-    "devDependencies": {
-        "@types/node": "^24.7.0",
-        "@types/react": "^19.2.2",
-        "@types/react-dom": "^19.2.2",
-        "@vitejs/plugin-react": "^4.3.0",
-        "eslint": "^9.35.0",
-        "eslint-config-prettier": "^9.1.2",
-        "eslint-plugin-prettier": "^5.5.4",
-        "eslint-plugin-react": "^7.37.5",
-        "eslint-plugin-react-hooks": "^5.2.0",
-        "eslint-plugin-simple-import-sort": "^12.1.1",
-        "globals": "^16.4.0",
-        "prettier": "^3.6.2",
-        "rimraf": "^6.0.1",
-        "typescript": "^5.9.3",
-        "vite": "^5.4.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/nadja-git-a/lad_stack_overflow.git"
-    },
-    "bugs": {
-        "url": "https://github.com/nadja-git-a/lad_stack_overflow/issues"
-    },
-    "homepage": "https://github.com/nadja-git-a/lad_stack_overflow#readme",
-    "license": "ISC"
+  "name": "lad_stack_overflow",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@hookform/resolvers": "^5.2.2",
+    "@mui/icons-material": "^7.3.4",
+    "@mui/material": "^7.3.4",
+    "@reduxjs/toolkit": "^2.9.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.66.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.9.4",
+    "react-toastify": "^11.0.5",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
+    "@vitejs/plugin-react": "^4.3.0",
+    "eslint": "^9.35.0",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^16.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.3",
+    "vite": "^5.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nadja-git-a/lad_stack_overflow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nadja-git-a/lad_stack_overflow/issues"
+  },
+  "homepage": "https://github.com/nadja-git-a/lad_stack_overflow#readme",
+  "license": "ISC"
 }

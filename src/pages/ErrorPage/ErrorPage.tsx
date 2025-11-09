@@ -1,10 +1,12 @@
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { Box, Button, Paper, Typography } from '@mui/material';
-import { useNavigate, useRouteError } from 'react-router-dom';
+import { isRouteErrorResponse, useNavigate, useRouteError } from 'react-router-dom';
 
 export default function ErrorPage() {
-  const error: any = useRouteError();
+  const error = useRouteError();
   const navigate = useNavigate();
+
+  const isRouterError = isRouteErrorResponse(error);
 
   return (
     <Box
@@ -33,7 +35,7 @@ export default function ErrorPage() {
         </Typography>
 
         <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-          {error?.status === 404
+          {isRouterError && error.status === 404
             ? "The page you're looking for doesn't exist."
             : 'An unexpected error occurred.'}
         </Typography>
@@ -47,7 +49,9 @@ export default function ErrorPage() {
             fontFamily: 'monospace',
           }}
         >
-          {error?.statusText || error?.message || 'Unknown error'}
+          {isRouterError
+            ? error.statusText || error.data?.message || 'Unknown error'
+            : ((error as Error)?.message ?? 'Unknown error')}
         </Typography>
 
         <Button

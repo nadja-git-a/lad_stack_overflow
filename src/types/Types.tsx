@@ -1,7 +1,8 @@
 type Role = 'user' | 'admin';
-export type MarkType = 'like' | 'dislike';
+export type MarkType = 'like' | 'dislike' | 'none';
 
 export interface ErrorMessage {
+  status: number;
   data: {
     message: string;
   };
@@ -117,7 +118,7 @@ export interface NewAnswer {
 }
 
 export interface Answer extends NewAnswer {
-  isCorrect: Boolean;
+  isCorrect: boolean;
 }
 
 export interface UpdateMeRequest {

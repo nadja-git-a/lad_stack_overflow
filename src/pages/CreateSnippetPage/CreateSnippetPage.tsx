@@ -3,9 +3,9 @@ import { Button, Container, Paper, Stack, TextField, Typography } from '@mui/mat
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { codeFormType, codeSchema } from './schemas/schema';
 import LanguageSelect from '../../components/LanguageSelect/LanguageSelect';
 import { useCreateSnippetMutation } from '../../services/api';
+import { codeFormType, codeSchema } from './schemas/schema';
 
 export default function CreateSnippetPage() {
   const [language, setLanguage] = useState('');

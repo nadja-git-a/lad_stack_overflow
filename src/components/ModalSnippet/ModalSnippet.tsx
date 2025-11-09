@@ -10,7 +10,7 @@ interface ModalProps {
   code: string;
   onSave: (nextCode: string) => void;
 }
-export default function ModalSnippet({ open, onClose, code, onSave }: ModalProps) {
+export default function ModalSnippet({ open, onClose, onSave }: ModalProps) {
   const {
     register,
     handleSubmit,
@@ -20,8 +20,8 @@ export default function ModalSnippet({ open, onClose, code, onSave }: ModalProps
     mode: 'onTouched',
   });
 
-  const onSubmit = async (data: AttachedCodeFormType) => {
-    await onSave(data.attachedCode);
+  const onSubmit = (data: AttachedCodeFormType) => {
+    onSave(data.attachedCode);
   };
 
   return (
